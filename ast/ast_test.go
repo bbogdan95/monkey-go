@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"apeScript/token"
+	"monkey/token"
 	"testing"
 )
 
