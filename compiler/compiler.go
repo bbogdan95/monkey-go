@@ -2,9 +2,9 @@ package compiler
 
 import (
 	"fmt"
-	"monkey/ast"
-	"monkey/code"
-	"monkey/object"
+	"github.com/bbogdan95/monkey-go/ast"
+	"github.com/bbogdan95/monkey-go/code"
+	"github.com/bbogdan95/monkey-go/object"
 	"sort"
 )
 

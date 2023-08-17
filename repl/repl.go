@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"monkey/compiler"
-	"monkey/lexer"
-	"monkey/object"
-	"monkey/parser"
-	"monkey/vm"
+	"github.com/bbogdan95/monkey-go/compiler"
+	"github.com/bbogdan95/monkey-go/lexer"
+	"github.com/bbogdan95/monkey-go/object"
+	"github.com/bbogdan95/monkey-go/parser"
+	"github.com/bbogdan95/monkey-go/vm"
 )
 
 const PROMPT = ">> "

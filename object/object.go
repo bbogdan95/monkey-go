@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"hash/fnv"
-	"monkey/ast"
-	"monkey/code"
+	"github.com/bbogdan95/monkey-go/ast"
+	"github.com/bbogdan95/monkey-go/code"
 	"strings"
 )
 

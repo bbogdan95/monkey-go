@@ -2,11 +2,11 @@ package vm
 
 import (
 	"fmt"
-	"monkey/ast"
-	"monkey/compiler"
-	"monkey/lexer"
-	"monkey/object"
-	"monkey/parser"
+	"github.com/bbogdan95/monkey-go/ast"
+	"github.com/bbogdan95/monkey-go/compiler"
+	"github.com/bbogdan95/monkey-go/lexer"
+	"github.com/bbogdan95/monkey-go/object"
+	"github.com/bbogdan95/monkey-go/parser"
 	"testing"
 )
 

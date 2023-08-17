@@ -3,7 +3,7 @@ package ast
 import (
 	"bytes"
 	"fmt"
-	"monkey/token"
+	"github.com/bbogdan95/monkey-go/token"
 	"strings"
 )
 
