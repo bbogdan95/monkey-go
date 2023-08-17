@@ -13,15 +13,15 @@ func TestMake(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		instruction := Make(tt.op, tt.operands...)
+		instructions := Make(tt.op, tt.operands...)
 
-		if len(instruction) != len(tt.expected) {
-			t.Errorf("instruction has wrong length. want=%d, got=%d", len(tt.expected), len(instruction))
+		if len(instructions) != len(tt.expected) {
+			t.Errorf("instructions has wrong length. want=%d, got=%d", len(tt.expected), len(instructions))
 		}
 
 		for i, b := range tt.expected {
-			if instruction[i] != tt.expected[i] {
-				t.Errorf("wrong byte at pos %d. want=%d, got=%d", i, b, instruction[i])
+			if instructions[i] != tt.expected[i] {
+				t.Errorf("wrong byte at pos %d. want=%d, got=%d", i, b, instructions[i])
 			}
 		}
 	}
@@ -59,14 +59,14 @@ func TestReadOperands(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		instruction := Make(tt.op, tt.operands...)
+		instructions := Make(tt.op, tt.operands...)
 
 		def, err := Lookup(byte(tt.op))
 		if err != nil {
 			t.Fatalf("definition not found: %q\n", err)
 		}
 
-		operandsRead, n := ReadOperands(def, instruction[1:])
+		operandsRead, n := ReadOperands(def, instructions[1:])
 		if n != tt.bytesRead {
 			t.Fatalf("n wrong. want=%d, got=%d", tt.bytesRead, n)
 		}
