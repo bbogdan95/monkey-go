@@ -295,7 +295,7 @@ func TestConditionals(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			input: `
-			if (true) { 10 }; 3333;
+				if (true) { 10 }; 3333;
 			`,
 			expectedConstants: []interface{}{10, 3333},
 			expectedInstructions: []code.Instructions{
@@ -319,7 +319,7 @@ func TestConditionals(t *testing.T) {
 		},
 		{
 			input: `
-			if (true) { 10 } else { 20 }; 3333;
+				if (true) { 10 } else { 20 }; 3333;
 			`,
 			expectedConstants: []interface{}{10, 20, 3333},
 			expectedInstructions: []code.Instructions{
@@ -350,8 +350,8 @@ func TestGlobalScope(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			input: `
-			let one = 1;
-			let two = 2;
+				let one = 1;
+				let two = 2;
 			`,
 			expectedConstants: []interface{}{1, 2},
 			expectedInstructions: []code.Instructions{
@@ -363,8 +363,8 @@ func TestGlobalScope(t *testing.T) {
 		},
 		{
 			input: `
-			let one = 1;
-			one;
+				let one = 1;
+				one;
 			`,
 			expectedConstants: []interface{}{1},
 			expectedInstructions: []code.Instructions{
@@ -376,9 +376,9 @@ func TestGlobalScope(t *testing.T) {
 		},
 		{
 			input: `
-			let one = 1;
-			let two = one;
-			two;
+				let one = 1;
+				let two = one;
+				two;
 			`,
 			expectedConstants: []interface{}{1},
 			expectedInstructions: []code.Instructions{
@@ -723,9 +723,9 @@ func TestFunctionCalls(t *testing.T) {
 		},
 		{
 			input: `
-	let noArg = fn() { 24 };
-	noArg();
-	`,
+				let noArg = fn() { 24 };
+				noArg();
+			`,
 			expectedConstants: []interface{}{
 				24,
 				[]code.Instructions{
@@ -743,8 +743,8 @@ func TestFunctionCalls(t *testing.T) {
 		},
 		{
 			input: `
-			let oneArg = fn(a) { a };
-			oneArg(24);
+				let oneArg = fn(a) { a };
+				oneArg(24);
 			`,
 			expectedConstants: []interface{}{
 				[]code.Instructions{
@@ -764,9 +764,9 @@ func TestFunctionCalls(t *testing.T) {
 		},
 		{
 			input: `
-let manyArg = fn(a, b, c) { a; b; c }; 
-manyArg(24, 25, 26);
-`,
+				let manyArg = fn(a, b, c) { a; b; c }; 
+				manyArg(24, 25, 26);
+			`,
 			expectedConstants: []interface{}{
 				[]code.Instructions{
 					code.Make(code.OpGetLocal, 0),
@@ -799,9 +799,9 @@ func TestBuiltins(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			input: `
-	len([]);
-	push([], 1);
-	`,
+				len([]);
+				push([], 1);
+			`,
 			expectedConstants: []interface{}{1},
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpGetBuiltin, 0),
@@ -838,9 +838,9 @@ func TestLetStatementScopes(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			input: `
-	let num = 55;
-	fn() { num }
-	`,
+				let num = 55;
+				fn() { num }
+			`,
 			expectedConstants: []interface{}{
 				55,
 				[]code.Instructions{
@@ -857,11 +857,11 @@ func TestLetStatementScopes(t *testing.T) {
 		},
 		{
 			input: `
-	fn() {
-	let num = 55; 
-	num
-	}
-	`,
+				fn() {
+					let num = 55; 
+					num
+				}
+			`,
 			expectedConstants: []interface{}{
 				55,
 				[]code.Instructions{
@@ -878,11 +878,11 @@ func TestLetStatementScopes(t *testing.T) {
 		},
 		{
 			input: `fn() {
-		let a = 55; 
-		let b = 77; 
-		a + b
-		}
-		`,
+				let a = 55; 
+				let b = 77; 
+				a + b
+			}
+			`,
 			expectedConstants: []interface{}{
 				55,
 				77,
@@ -1037,6 +1037,74 @@ func TestClosures(t *testing.T) {
 				code.Make(code.OpConstant, 0),
 				code.Make(code.OpSetGlobal, 0),
 				code.Make(code.OpClosure, 6, 0),
+				code.Make(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func TestRecursiveFunctions(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+				let countDown = fn(x) { countDown(x - 1); }; 
+				countDown(1);
+			`,
+			expectedConstants: []interface{}{
+				1,
+				[]code.Instructions{
+					code.Make(code.OpCurrentClosure),
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpConstant, 0),
+					code.Make(code.OpSub),
+					code.Make(code.OpCall, 1),
+					code.Make(code.OpReturnValue),
+				},
+				1,
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpClosure, 1, 0),
+				code.Make(code.OpSetGlobal, 0),
+				code.Make(code.OpGetGlobal, 0),
+				code.Make(code.OpConstant, 2),
+				code.Make(code.OpCall, 1),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input: `
+				let wrapper = fn() {
+					let countDown = fn(x) { countDown(x - 1); }; 
+					countDown(1);
+				};
+				wrapper();
+			`,
+			expectedConstants: []interface{}{
+				1,
+				[]code.Instructions{
+					code.Make(code.OpCurrentClosure),
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpConstant, 0),
+					code.Make(code.OpSub),
+					code.Make(code.OpCall, 1),
+					code.Make(code.OpReturnValue),
+				},
+				1,
+				[]code.Instructions{
+					code.Make(code.OpClosure, 1, 0),
+					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpConstant, 2),
+					code.Make(code.OpCall, 1),
+					code.Make(code.OpReturnValue),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpClosure, 3, 0),
+				code.Make(code.OpSetGlobal, 0),
+				code.Make(code.OpGetGlobal, 0),
+				code.Make(code.OpCall, 0),
 				code.Make(code.OpPop),
 			},
 		},
