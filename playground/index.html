@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE-edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monkey Playground</title>
+    <!-- css -->
+    <link rel="stylesheet" href="./css/simple-code-editor.css" />
+    <link rel="stylesheet" href="./css/themes/themes-base16.css" />
+    <link rel="stylesheet" href="./css/themes/themes.css" />
+    <style>
+      html, body, .app {
+        height: 100%;
+      }
+      h3 {
+        color: wheat;
+        margin: 10px;
+      }
+      .logs {
+        background: #0d1117;
+        margin: 5px 0;
+        border-radius: 8px;
+        padding: 10px;
+        color: #999;
+        max-height: 150px;
+        overflow: auto;
+      }
+      button {
+        padding: 5px 15px;
+        background: #47ff55;
+        outline: none;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body style="background-color: #27263b">
+    
+    <div id="app">
+      <h3>Monkey Playground</h3>
+      <code-editor
+        theme="github-dark"
+        :line-nums="true"
+        v-model="value"
+        width="100%"
+        :languages="[['js', 'Monkey']]"
+      ></code-editor>
+      <div class="logs">
+        <div v-for="(log,i) in capturedLogs" :key="i">{{ log }}</div>
+      </div>
+      
+      <button v-if="loading" disabled>Loading</button>
+      <button v-else @click="compileAndRun">Run</button>
+    </div>
+    <!-- js -->
+    <script src="./deps/vue@3.3.4.min.js"></script>
+    <script src="./deps/highlight.min.js"></script>
+    <script src="./js/simple-code-editor.js"></script>
+    <script src="wasm_exec.js"></script>
+    <script>
+      const go = new Go();
+      WebAssembly.instantiateStreaming(
+          fetch('monkey.wasm'), 
+          go.importObject).then((result) => {
+              go.run(result.instance);
+              window.execute = execute;
+          }
+      );
+
+      const app = Vue.createApp({
+        components: {
+          "code-editor": CodeEditor,
+        },
+        methods: {
+          compileAndRun() {
+            this.loading = true;
+            this.capturedLogs = [];
+            const res = window.execute(this.value);
+            this.loading = false;
+            console.log(`${this.formatDateToHumanReadable(new Date())}: Finished execution!`)
+          },
+          formatDateToHumanReadable(date) {
+              const year = date.getFullYear();
+              const month = (date.getMonth() + 1).toString().padStart(2, '0');
+              const day = date.getDate().toString().padStart(2, '0');
+              const hours = date.getHours().toString().padStart(2, '0');
+              const minutes = date.getMinutes().toString().padStart(2, '0');
+              const seconds = date.getSeconds().toString().padStart(2, '0');
+              
+              return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+          }
+        },
+        data() {
+          return {
+            loading: false,
+            capturedLogs: null,
+            originalConsolLog: null,
+            value: `let a = 10;
+let b = 20;
+
+let c = if (a > b) {
+    a;
+} else {
+    b;
+}
+puts(c);
+puts("Hello from the other side!");
+`,
+          };
+        },
+        created() {
+          this.capturedLogs = [];
+          
+          this.originalConsolLog = console.log
+          console.log = (...args) => {
+              this.capturedLogs.push(args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' '));
+          };
+        }
+      });
+      app.mount("#app");
+    </script>
+  </body>
+
+  
+</html>
