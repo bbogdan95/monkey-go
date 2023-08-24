@@ -6,7 +6,7 @@ Implementation of the Monkey language from [Writing an interpreter in go](https:
 Monkey is a programming language created by Thorsten Ball.
 
 
-## TESTS
+## Tests
 
 `go test $(go list ./... | grep -v /docs)` - run all tests except `docs`
 
