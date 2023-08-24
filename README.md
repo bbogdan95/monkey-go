@@ -8,18 +8,18 @@ Monkey is a programming language created by Thorsten Ball.
 
 ## TESTS
 
-`go test $(go list ./... | grep -v /playground)` - run all tests except `playground`
+`go test $(go list ./... | grep -v /docs)` - run all tests except `docs`
 
 ## Build
 `go build -o monkey`
 
 ## Build for Playground
 This also contains a web `Playground`.
-To build for the `Playground` run: `GOARCH=wasm GOOS=js go build -o ./playground/monkey.wasm ./playground/main.go`
+To build for the `Playground` run: `GOARCH=wasm GOOS=js go build -o ./docs/monkey.wasm ./docs/main.go`
 
 ## Running the playground
 Use any static file-server.
-Example: `cd playground && python -m http.server` and then navigate to `http://localhost:8000`
+Example: `cd docs && python -m http.server` and then navigate to `http://localhost:8000`
 
 ## Running as REPL
 `go run main.go -repl`
